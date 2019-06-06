@@ -1,16 +1,16 @@
 import tensorflow as tf
 
 
-def BN(data, bn_momentum=0.9, name=None):
-    return tf.layers.batch_normalization(data, momentum=bn_momentum, name=('%s__bn' % name))
+def BN(data, bn_momentum=0.9, name=None, is_training=False):
+    return tf.layers.batch_normalization(data, momentum=bn_momentum, name=('%s__bn' % name), training=is_training)
 
 
 def AC(data, name=None):
     return tf.nn.relu(data, name=('%s__relu' % name))
 
 
-def BN_AC(data, momentum=0.9, name=None):
-    bn = BN(data=data, name=name)
+def BN_AC(data, momentum=0.9, name=None, is_training=False):
+    bn = BN(data=data, bn_momentum=momentum, name=name, training=is_training)
     bn_ac = AC(data=bn, name=name)
     return bn_ac
 
@@ -35,17 +35,17 @@ def Conv(data, num_filter, kernel, stride=(1, 1), pad='valid', name=None, no_bia
 # - - - - - - - - - - - - - - - - - - - - - - -
 # Standard Common functions < CVPR >
 def Conv_BN(data, num_filter, kernel, pad, stride=(1, 1), name=None, w=None, b=None, no_bias=False, attr=None,
-            num_group=1):
+            num_group=1, is_training=False):
     cov = Conv(data=data, num_filter=num_filter, num_group=num_group, kernel=kernel, pad=pad, stride=stride, name=name,
                w=w, b=b, no_bias=no_bias, attr=attr)
-    cov_bn = BN(data=cov, name=('%s__bn' % name))
+    cov_bn = BN(data=cov, name=('%s__bn' % name), training=is_training)
     return cov_bn
 
 
 def Conv_BN_AC(data, num_filter, kernel, pad, stride=(1, 1), name=None, w=None, b=None, no_bias=False, attr=None,
-               num_group=1):
+               num_group=1, is_training=False):
     cov_bn = Conv_BN(data=data, num_filter=num_filter, num_group=num_group, kernel=kernel, pad=pad, stride=stride,
-                     name=name, w=w, b=b, no_bias=no_bias, attr=attr)
+                     name=name, w=w, b=b, no_bias=no_bias, attr=attr, training=is_training)
     cov_ba = AC(data=cov_bn, name=('%s__ac' % name))
     return cov_ba
 
@@ -53,8 +53,8 @@ def Conv_BN_AC(data, num_filter, kernel, pad, stride=(1, 1), name=None, w=None, 
 # - - - - - - - - - - - - - - - - - - - - - - -
 # Standard Common functions < ECCV >
 def BN_Conv(data, num_filter, kernel, pad, stride=(1, 1), name=None, w=None, b=None, no_bias=False, attr=None,
-            num_group=1):
-    bn = BN(data=data, name=('%s__bn' % name))
+            num_group=1, is_training=False):
+    bn = BN(data=data, name=('%s__bn' % name), training=is_training)
     bn_cov = Conv(data=bn, num_filter=num_filter, num_group=num_group, kernel=kernel, pad=pad, stride=stride, name=name,
                   w=w, b=b, no_bias=no_bias, attr=attr)
     return bn_cov
@@ -68,8 +68,8 @@ def AC_Conv(data, num_filter, kernel, pad, stride=(1, 1), name=None, w=None, b=N
 
 
 def BN_AC_Conv(data, num_filter, kernel, pad, stride=(1, 1), name=None, w=None, b=None, no_bias=False, attr=None,
-               num_group=1):
-    bn = BN(data=data, name=('%s__bn' % name))
+               num_group=1, is_training=False):
+    bn = BN(data=data, name=('%s__bn' % name), training=is_training)
     ba_cov = AC_Conv(data=bn, num_filter=num_filter, num_group=num_group, kernel=kernel, pad=pad, stride=stride,
                      name=name, w=w, b=b, no_bias=no_bias, attr=attr)
     return ba_cov
